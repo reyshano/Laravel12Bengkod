@@ -23,7 +23,14 @@ class UserSeeder extends Seeder
                 'email' => 'gastonBadni@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'dokter',
-
+            ],
+            [
+                'nama' => 'Budi Anton',
+                'alamat' => 'Semarang',
+                'no_hp' => '098223423810',
+                'email' => 'BudiAnton@gmail.com',
+                'password' => Hash::make('password'),
+                'role' => 'pasien',
             ],
 
         ]);

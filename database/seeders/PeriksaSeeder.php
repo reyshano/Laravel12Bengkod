@@ -14,17 +14,17 @@ class PeriksaSeeder extends Seeder
     {
         DB::table('periksas')->insert([
             [
-                'id_pasien' => 1, // Sesuaikan dengan ID pasien di tabel users
-                'id_dokter' => 3, // Sesuaikan dengan ID dokter di tabel users
+                'id_pasien' => 2, // Sesuaikan dengan ID pasien di tabel users
+                'id_dokter' => 1, // Sesuaikan dengan ID dokter di tabel users
                 'tgl_periksa' => '2025-03-20 10:00:00',
-                'catatan' => 'Pasien mengalami demam tinggi dan sakit kepala.',
+                'catatan' => 'Pasien mengalami sakit kepala.',
                 'biaya_periksa' => 50000,
             ],
             [
-                'id_pasien' => 1,
-                'id_dokter' => 3,
+                'id_pasien' => 2,
+                'id_dokter' => 1,
                 'tgl_periksa' => '2025-03-22 14:00:00',
-                'catatan' => 'Keluhan batuk berdahak dan pilek.',
+                'catatan' => 'Keluhan batuk pilek.',
                 'biaya_periksa' => 60000,
             ],
         ]);
