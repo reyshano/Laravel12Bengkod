@@ -34,6 +34,20 @@
 @endsection
 
 @section('content')
+@if (session('success'))
+<div class="alert alert-success alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <h5><i class="icon fas fa-check"></i> Sukses!</h5>
+    {{ session('success') }}
+</div>
+@endif
+@if (session('error'))
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <h5><i class="icon fas fa-exclamation-triangle"></i> Error!</h5>
+    {{ session('error') }}
+</div>
+@endif
 
    <section class="content-header">
       <div class="container-fluid">
@@ -63,7 +77,7 @@
                 <h3 class="card-title">Form Tambah Obat</h3>
               </div>
               <div class="card-body">
-                <form action="/dokter/obat/store" method="POST">
+                <form action="{{ route('dokter.obatStore') }}" method="POST">
                   @csrf
                   <div class="form-group">
                     <label for="nama_obat">Nama Obat</label>
@@ -81,6 +95,8 @@
                 </form>
               </div>
             </div>
+
+          
             
             <!-- Tabel List Obat -->
             <div class="card">
@@ -114,16 +130,16 @@
                   <tbody>
                     @foreach ($obats as $obat)
                     <tr>
-                        <td>{{$loop->iteration}}</td>
-                        <td>{{$obat->id}}</td>
-                        <td>{{$obat->nama_obat}}</td>
-                        <td>{{$obat->kemasan}}</td>
-                        <td>{{$obat->harga}}</td>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $obat->id }}</td>
+                        <td>{{ $obat->nama_obat }}</td>
+                        <td>{{ $obat->kemasan }}</td>
+                        <td>{{ $obat->harga }}</td>
                         <td>
-                          <a href="" class="btn btn-warning btn-sm">
+                          <a href="{{ route('dokter.obatEdit', $obat->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                           </a>
-                          <form action="" method="POST" style="display:inline;">
+                          <form action="{{ route('dokter.obatDelete', $obat->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus obat ini?');">
