@@ -28,6 +28,17 @@
                     </p>
                 </a>
             </li>
+            <li class="nav-item">
+                <form action={{route('auth.logout.post')}} method="post">
+                    @csrf
+                
+                <button type="submit" class="nav-link ">
+                <p>
+                  Logout
+                </p>
+                </button>
+                </form>
+             </li>
         </ul>
     </nav>
     <!-- /.sidebar-menu -->
@@ -88,6 +99,7 @@
                                         <th>Tanggal Periksa</th>
                                         <th>Catatan</th>
                                         <th>Biaya Periksa</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -99,6 +111,12 @@
                                             <td>{{ $periksa->tgl_periksa }}</td>
                                             <td>{{ $periksa->catatan }}</td>
                                             <td>{{ $periksa->biaya_periksa }}</td>
+                                            <td>
+                                                <a href="{{ route('dokter.periksaEdit', $periksa->id) }}" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Periksa
+                                                </a>
+                                                
+                                                </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

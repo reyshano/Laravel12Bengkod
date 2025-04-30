@@ -3,10 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Obat;
+use App\Models\Periksa;
+use App\Models\DetailPeriksa;
 use Illuminate\Http\Request;
 
 class DokterController extends Controller
 {
+    public function dashboardDokter(){
+        $periksas = Periksa::all(); 
+        $obats = Obat::all(); 
+        return view('dokter.dashboard', compact('periksas', 'obats'));
+    }
+
     public function showObat()
     {
         $obats = Obat::all();
@@ -50,6 +58,38 @@ class DokterController extends Controller
 
     }
 
+    public function updatePeriksa(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'catatan' => 'required|string|max:255',
+            'biaya_periksa' => 'required',
+            'id_obat' => 'array', // Harus array jika multiple
+            'id_obat.*' => 'exists:obats,id', // Pastikan setiap id_obat valid
+        ]);
+
+        $periksa = Periksa::findOrFail($id);
+
+        $periksa->update([
+            'catatan' => $validatedData['catatan'],
+            'biaya_periksa' => $validatedData['biaya_periksa'],
+        ]);
+
+        // Hapus data obat sebelumnya, agar tidak dobel
+        DetailPeriksa::where('id_periksa', $periksa->id)->delete();
+
+        // Simpan data obat baru
+        if (!empty($validatedData['id_obat'])) {
+            foreach ($validatedData['id_obat'] as $obatId) {
+                DetailPeriksa::create([
+                    'id_periksa' => $periksa->id,
+                    'id_obat' => $obatId,
+                ]);
+            }
+        }
+
+        return redirect()->route('dokter.periksa')->with('success', 'Berhasil Periksa Pasien');
+    }
+
     public function destroyObat($id){
 
         $obat = Obat::findOrFail($id);
@@ -62,5 +102,13 @@ class DokterController extends Controller
     {
         $obat = Obat::findOrFail($id);
         return view('dokter.obatEdit', compact('obat'));
+    }
+
+    public function editPeriksa($id)
+    {
+        $periksa = Periksa::findOrFail($id);
+        $obats = Obat::all(); // Semua obat
+        $selectedObats = $periksa->detailPeriksas()->pluck('id_obat')->toArray(); 
+        return view('dokter.periksaEdit', compact('periksa', 'obats', 'selectedObats'));
     }
 }
