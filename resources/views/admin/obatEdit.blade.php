@@ -1,49 +1,85 @@
 @extends('layout')
 
 @section('sidebar')
-    <!-- Sidebar Menu -->
-    <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-            <li class="nav-item">
-                <a href="{{ route('dokter.dashboard') }}" class="nav-link ">
-                    <i class="nav-icon fas fa-tachometer-alt"></i>
-                    <p>
-                        Dashboard
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('dokter.periksa') }}" class="nav-link ">
-                    <p>
-                        Periksa
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('dokter.obat') }}" class="nav-link active">
-                    <p>
-                        Obat
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <form action={{route('auth.logout.post')}} method="post">
-                    @csrf
-                
-                <button type="submit" class="nav-link ">
-                <p>
-                  Logout
-                </p>
-                </button>
-                </form>
-             </li>
-        </ul>
-    </nav>
-    <!-- /.sidebar-menu -->
+
+    <li class="nav-item menu-open">
+      <a href="/admin" class="nav-link {{ Request::is('/admin') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>
+          Dashboard
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/admin/poli" class="nav-link {{ Request::is('admin/poli*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-th"></i>
+        <p>
+          Poli
+          <span class="right badge badge-danger">New</span>
+        </p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/admin/obat" class="nav-link {{ Request::is('admin/obat*') ? 'active' : '' }}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>
+          Obat
+          
+        </p>
+      </a>
+    </li>
+      <li class="nav-item">
+      <a href="/admin/pasien" class="nav-link {{ Request::is('admin/pasien*') ? 'active' : '' }}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>
+          Pasien
+          
+        </p>
+      </a>
+    </li>
+      <li class="nav-item">
+      <a href="/admin/dokter" class="nav-link {{ Request::is('admin/dokter*') ? 'active' : '' }}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>
+          Dokter
+          
+        </p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <form action={{route('auth.logout.post')}} method="post">
+          @csrf
+      
+      <button type="submit" class="nav-link ">
+      <p>
+        Logout
+      </p>
+      </button>
+      </form>
+   </li>
+
 @endsection
 
 @section('content')
     <!-- Content Header (Page header) -->
+    @if (session('success'))
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h5><i class="icon fas fa-check"></i> Sukses!</h5>
+        {{ session('success') }}
+    </div>
+    @endif
+    @if (session('error'))
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h5><i class="icon fas fa-exclamation-triangle"></i> Error!</h5>
+        {{ session('error') }}
+    </div>
+    @endif
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -73,7 +109,7 @@
                             </div>
                             <!-- /.card-header -->
                             <!-- form start -->
-                            <form method="POST" action="{{ route('dokter.obatUpdate',$obat->id) }}">
+                            <form method="POST" action="{{ route('admin.obatUpdate',$obat->id) }}">
                                 @csrf
                                 @method('PUT')
                                 <div class="card-body">

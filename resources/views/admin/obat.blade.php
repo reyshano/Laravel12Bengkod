@@ -2,7 +2,7 @@
 @section('sidebar')
 
     <li class="nav-item menu-open">
-      <a href="/dokter" class="nav-link {{ Request::is('/dokter') ? 'active' : '' }}">
+      <a href="/admin" class="nav-link {{ Request::is('/admin') ? 'active' : '' }}">
         <i class="nav-icon fas fa-tachometer-alt"></i>
         <p>
           Dashboard
@@ -12,21 +12,39 @@
     </li>
 
     <li class="nav-item">
-      <a href="/dokter/periksa" class="nav-link {{ Request::is('dokter/periksa*') ? 'active' : '' }}">
+      <a href="/admin/poli" class="nav-link {{ Request::is('admin/poli*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-th"></i>
         <p>
-          Periksa
+          Poli
           <span class="right badge badge-danger">New</span>
         </p>
       </a>
     </li>
 
     <li class="nav-item">
-      <a href="/dokter/obat" class="nav-link {{ Request::is('dokter/obat*') ? 'active' : '' }}">
+      <a href="/admin/obat" class="nav-link {{ Request::is('admin/obat*') ? 'active' : '' }}">
         <i class="nav-icon far fa-calendar-alt"></i>
         <p>
           Obat
-          <span class="badge badge-info right">{{ $obats->count() }}</span>
+          
+        </p>
+      </a>
+    </li>
+      <li class="nav-item">
+      <a href="/admin/pasien" class="nav-link {{ Request::is('admin/pasien*') ? 'active' : '' }}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>
+          Pasien
+          
+        </p>
+      </a>
+    </li>
+      <li class="nav-item">
+      <a href="/admin/dokter" class="nav-link {{ Request::is('admin/dokter*') ? 'active' : '' }}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>
+          Dokter
+          
         </p>
       </a>
     </li>
@@ -65,7 +83,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Dokter</h1>
+            <h1>Obat</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -89,7 +107,7 @@
                 <h3 class="card-title">Form Tambah Obat</h3>
               </div>
               <div class="card-body">
-                <form action="{{ route('dokter.obatStore') }}" method="POST">
+                <form action="{{ route('admin.obatStore') }}" method="POST">
                   @csrf
                   <div class="form-group">
                     <label for="nama_obat">Nama Obat</label>
@@ -148,10 +166,10 @@
                         <td>{{ $obat->kemasan }}</td>
                         <td>{{ $obat->harga }}</td>
                         <td>
-                          <a href="{{ route('dokter.obatEdit', $obat->id) }}" class="btn btn-warning btn-sm">
+                          <a href="{{ route('admin.obatEdit', $obat->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                           </a>
-                          <form action="{{ route('dokter.obatDelete', $obat->id) }}" method="POST" style="display:inline;">
+                          <form action="{{ route('admin.obatDelete', $obat->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus obat ini?');">
