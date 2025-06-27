@@ -661,7 +661,8 @@
     <section class="access-section" id="access">
         <div class="container">
             <h2 class="text-center section-title">Pilih Akses Anda</h2>
-            <div class="row g-4">
+            {{-- Menggunakan Flexbox untuk penataan di tengah --}}
+            <div class="row g-4 justify-content-center">
                 <div class="col-md-4">
                     <div class="access-card">
                         <div class="card-icon">
@@ -677,21 +678,12 @@
                         <div class="card-icon">
                             <i class="fas fa-user-md"></i>
                         </div>
-                        <h4>Login Dokter</h4>
-                        <p>Portal khusus untuk tenaga medis profesional. Akses dashboard dokter untuk mengelola jadwal konsultasi dan rekam medis pasien.</p>
+                        <h4>Login ke Sistem</h4>
+                        <p>Masuk ke portal Anda, baik sebagai Pasien, Dokter, atau Administrator, untuk mengakses fitur dan data sesuai peran Anda.</p>
                         <a href="/login" class="btn-access">Login Dokter</a>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="access-card">
-                        <div class="card-icon">
-                            <i class="fas fa-cog"></i>
-                        </div>
-                        <h4>Login Administrator</h4>
-                        <p>Panel kontrol sistem untuk administrator. Kelola seluruh aspek platform, monitoring, dan konfigurasi sistem poliklinik online.</p>
-                        <a href="/login" class="btn-access">Login Admin</a>
-                    </div>
-                </div>
+                {{-- Tombol Login Administrator dihapus --}}
             </div>
         </div>
     </section>

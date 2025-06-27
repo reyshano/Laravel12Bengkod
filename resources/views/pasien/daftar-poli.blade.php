@@ -1,7 +1,6 @@
 @extends('layout')
 
 @section('sidebar')
-    <!-- Sidebar Menu -->
     <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
@@ -24,28 +23,23 @@
             <li class="nav-item">
                 <form action={{route('auth.logout.post')}} method="post">
                     @csrf
-                 <i class="nav-icon far fa-calendar-alt"></i>
-                 <button type="submit" class="nav-link ">
-                 <p>
-                   Logout
-                 </p>
-                </button>
-                </form>
-                  
-                 
+                   <i class="nav-icon far fa-calendar-alt"></i>
+                   <button type="submit" class="nav-link ">
+                   <p>
+                    Logout
+                   </p>
+                 </button>
+                 </form>
                </li>
         </ul>
     </nav>
-    <!-- /.sidebar-menu -->
-@endsection
+    @endsection
 
 @section('content')
-    <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>Daftar Poli</h1>
     </section>
 
-    <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
             <div class="row">
@@ -61,10 +55,8 @@
                                 </li>
                             </ul>
                         </div>
-                        <!-- /.card-header -->
                         <div class="card-body">
                             <div class="tab-content">
-                                <!-- Daftar Poli Tab -->
                                 <div class="tab-pane fade show active" id="daftar" role="tabpanel" aria-labelledby="daftar-tab">
                                     <form action="{{ route('pasien.daftar-poli.store') }}" method="POST">
                                         @csrf
@@ -108,13 +100,11 @@
                                         </div>
                                     </form>
                                 </div>
-                                <!-- Riwayat Daftar Poli Tab -->
                                 <div class="tab-pane fade" id="riwayat" role="tabpanel" aria-labelledby="riwayat-tab">
                                     <div class="card">
                                         <div class="card-header">
                                             <h3 class="card-title">Riwayat daftar poli</h3>
                                         </div>
-                                        <!-- /.card-header -->
                                         <div class="card-body">
                                             <table class="table table-bordered">
                                                 <thead>
@@ -126,6 +116,8 @@
                                                         <th>Mulai</th>
                                                         <th>Selesai</th>
                                                         <th>Antrian</th>
+                                                        <th>Catatan</th> {{-- New Column --}}
+                                                        <th>Biaya Periksa</th> {{-- New Column --}}
                                                         <th>Status</th>
                                                         <th>Aksi</th>
                                                     </tr>
@@ -140,12 +132,20 @@
                                                             <td>{{ $riwayat->jadwalPeriksa->jam_mulai ?? 'N/A' }}</td>
                                                             <td>{{ $riwayat->jadwalPeriksa->jam_selesai ?? 'N/A' }}</td>
                                                             <td>{{ $riwayat->no_antrian ?? 'N/A' }}</td>
+                                                            {{-- Display Catatan and Biaya Periksa --}}
+                                                            <td>{{ $riwayat->periksas->first()->catatan ?? 'Belum diperiksa' }}</td>
+                                                            <td>
+                                                                @if($riwayat->periksas->first() && $riwayat->periksas->first()->biaya_periksa)
+                                                                    Rp{{ number_format($riwayat->periksas->first()->biaya_periksa, 0, ',', '.') }}
+                                                                @else
+                                                                    Belum diperiksa
+                                                                @endif
+                                                            </td>
                                                             <td>{{ $riwayat->periksas->isNotEmpty() && $riwayat->periksas->first()->catatan ? 'Sudah diperiksa' : 'Belum diperiksa' }}</td>
                                                             <td>
                                                                 <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#detailModal{{ $riwayat->id }}">
                                                                     Detail
                                                                 </button>
-                                                                <!-- Modal -->
                                                                 <div class="modal fade" id="detailModal{{ $riwayat->id }}" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel{{ $riwayat->id }}" aria-hidden="true">
                                                                     <div class="modal-dialog" role="document">
                                                                         <div class="modal-content">
@@ -180,6 +180,21 @@
                                                                                     <label>Nomor Antrian</label>
                                                                                     <p>{{ $riwayat->no_antrian ?? 'N/A' }}</p>
                                                                                 </div>
+                                                                                {{-- Detail Catatan and Biaya Periksa in Modal --}}
+                                                                                <div class="form-group">
+                                                                                    <label>Catatan Dokter</label>
+                                                                                    <p>{{ $riwayat->periksas->first()->catatan ?? 'Belum ada catatan' }}</p>
+                                                                                </div>
+                                                                                <div class="form-group">
+                                                                                    <label>Biaya Periksa</label>
+                                                                                    <p>
+                                                                                        @if($riwayat->periksas->first() && $riwayat->periksas->first()->biaya_periksa)
+                                                                                            Rp{{ number_format($riwayat->periksas->first()->biaya_periksa, 0, ',', '.') }}
+                                                                                        @else
+                                                                                            Belum ada biaya
+                                                                                        @endif
+                                                                                    </p>
+                                                                                </div>
                                                                             </div>
                                                                             <div class="modal-footer">
                                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
@@ -192,7 +207,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="9" class="text-center">Tidak ada data</td>
+                                                            <td colspan="11" class="text-center">Tidak ada data</td> {{-- Updated colspan --}}
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
@@ -203,13 +218,9 @@
                             </div>
                         </div>
                     </div>
-                    <!-- /.card -->
-                </div>
+                    </div>
             </div>
-            <!-- /.row -->
-        </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+            </div></section>
     <script>
         function fetchSchedules() {
             let poliId = document.getElementById('id_poli').value;
@@ -232,7 +243,6 @@
     </script>
 @endsection
 
-<!-- bs-custom-file-input -->
 <script src="{{ asset('lte/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
 
 <script>

@@ -12,14 +12,21 @@ use Illuminate\Support\Facades\Auth;
 class PasienController extends Controller
 {
     public function dashboardPasien(){
-        $periksas = Periksa::all(); 
+        $periksas = Periksa::all();
         return view('pasien.dashboard', compact('periksas'));
     }
+
+
     public function index()
     {
         $polis = Poli::all();
-        $jadwals = JadwalPeriksa::with('dokter')->get();
-        $riwayats = DaftarPoli::with('jadwalPeriksa.dokter.poli')->where('id_pasien', Auth::id())->get();
+        $jadwals = JadwalPeriksa::with('dokter')
+                                ->where('status', 'aktif')
+                                ->get();
+
+        $riwayats = DaftarPoli::with(['jadwalPeriksa.dokter.poli', 'periksas'])
+                                ->where('id_pasien', Auth::id())
+                                ->get();
         return view('pasien.daftar-poli', compact('polis', 'jadwals', 'riwayats'));
     }
 
@@ -27,7 +34,9 @@ class PasienController extends Controller
     {
         $polis = Poli::all();
         $selectedPoliId = $request->input('id_poli');
+
         $jadwals = JadwalPeriksa::with('dokter')
+            ->where('status', 'aktif')
             ->when($selectedPoliId, function ($query) use ($selectedPoliId) {
                 return $query->whereHas('dokter.poli', function ($query) use ($selectedPoliId) {
                     $query->where('id', $selectedPoliId);
@@ -39,7 +48,11 @@ class PasienController extends Controller
             return response()->json(['jadwals' => $jadwals]);
         }
 
-        return view('pasien.daftar-poli', compact('polis', 'jadwals'));
+        $riwayats = DaftarPoli::with(['jadwalPeriksa.dokter.poli', 'periksas'])
+                                ->where('id_pasien', Auth::id())
+                                ->get();
+                                
+        return view('pasien.daftar-poli', compact('polis', 'jadwals', 'riwayats')); // <-- Tambahkan $riwayats
     }
 
     public function store(Request $request)
@@ -49,6 +62,15 @@ class PasienController extends Controller
             'id_jadwal' => 'required|exists:jadwal_periksa,id',
             'keluhan' => 'required|string|max:1000',
         ]);
+
+        // Opsional: Pastikan jadwal yang dipilih masih aktif sebelum disimpan
+        $jadwalAktif = JadwalPeriksa::where('id', $request->id_jadwal)
+                                     ->where('status', 'aktif')
+                                     ->first();
+
+        if (!$jadwalAktif) {
+            return redirect()->back()->with('error', 'Jadwal yang Anda pilih sudah tidak aktif. Silakan pilih jadwal lain.');
+        }
 
         DaftarPoli::create([
             'id_pasien' => Auth::id(),

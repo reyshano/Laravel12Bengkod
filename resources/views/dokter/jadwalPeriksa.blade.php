@@ -120,7 +120,6 @@
                                 <thead>
                                     <tr>
                                         <th>NO</th>
-                                       
                                         <th>Dokter</th>
                                         <th>Hari  </th>
                                         <th>Jam Mulai</th>
@@ -133,7 +132,6 @@
                                     @foreach ($jadwals as $jadwal)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                           
                                             <td>{{ $jadwal->dokter->nama }}</td>
                                             <td>{{ $jadwal->hari}}</td>
                                             <td>{{ $jadwal->jam_mulai }}</td>

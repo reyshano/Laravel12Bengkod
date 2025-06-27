@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Obat;
 use App\Models\Periksa;
 use App\Models\DetailPeriksa;
@@ -27,7 +26,6 @@ class DokterController extends Controller
     }
 
     public function storeJadwalPeriksa(Request $request){
-
             // Validasi input dari form
         $request->validate([
             'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
@@ -161,11 +159,6 @@ class DokterController extends Controller
 
         return redirect()->route('dokter.periksa')->with('success', 'Periksa pasien berhasil disimpan.');
     }
-
-   
-
-    
-
 
 
 public function updatePeriksa(Request $request, $id)
@@ -323,7 +316,7 @@ public function updatePeriksa(Request $request, $id)
                     'nama_pasien' => $pasien->nama ?? 'N/A',
                     'alamat' => $pasien->alamat ?? 'N/A',
                     'no_ktp' => $pasien->no_ktp ?? 'N/A',
-                    'no_telepon' => $pasien->no_telepon ?? 'N/A',
+                    'no_telepon' => $pasien->no_hp ?? 'N/A',
                     'no_rm' => $pasien->no_rm ?? 'N/A',
                     'aksi' => $daftarPoli->id, // Gunakan id dari DaftarPoli pertama untuk aksi
                 ];
@@ -339,42 +332,52 @@ public function updatePeriksa(Request $request, $id)
     public function showPasienDetail($id)
     {
         try {
-            // Ambil data DaftarPoli berdasarkan ID
-            $daftarPoli = DaftarPoli::with(['pasien', 'periksas.detailPeriksas.obat', 'jadwalPeriksa.dokter'])->findOrFail($id);
+            // Ambil dokter yang sedang login
+            $dokterId = auth()->user()->id;
 
-            // Ambil semua periksa untuk pasien ini berdasarkan id_pasien
-            $allPeriksas = DaftarPoli::where('id_pasien', $daftarPoli->id_pasien)
+            // Ambil data DaftarPoli berdasarkan ID untuk mendapatkan id_pasien
+            $daftarPoliAwal = DaftarPoli::with('pasien')->findOrFail($id);
+            $pasienId = $daftarPoliAwal->id_pasien;
+
+            // Ambil semua daftar poli untuk pasien ini, DENGAN FILTER berdasarkan dokter yang sedang login
+            $allPeriksas = DaftarPoli::where('id_pasien', $pasienId)
+                ->whereHas('jadwalPeriksa', function ($query) use ($dokterId) {
+                    $query->where('id_dokter', $dokterId);
+                })
                 ->with(['periksas.detailPeriksas.obat', 'jadwalPeriksa.dokter'])
                 ->get()
                 ->pluck('periksas')
-                ->flatten();
+                ->flatten()
+                ->filter(); // Menghapus entri null jika ada periksa yang belum terkait dengan daftar poli
 
             $riwayat = [];
             foreach ($allPeriksas as $index => $periksa) {
-                $obatList = $periksa->detailPeriksas->map(function ($detail) {
-                    return $detail->obat ? "{$detail->obat->nama_obat} {$detail->obat->kemasan} {$detail->obat->harga}" : 'N/A';
-                })->implode('<br>');
-                
-                $riwayat[] = [
-                    'no' => $index + 1,
-                    'tanggal_periksa' => $periksa ? \Carbon\Carbon::parse($periksa->tgl_periksa)->format('Y-m-d H:i:s') : 'Belum diperiksa',
-                    'nama_pasien' => $daftarPoli->pasien->nama ?? 'N/A',
-                    'nama_dokter' => $periksa->daftarPoli->jadwalPeriksa->dokter->nama ?? 'N/A',
-                    'keluhan' => $periksa->daftarPoli->keluhan ?? 'N/A',
-                    'catatan' => $periksa->catatan ?? 'Belum ada catatan',
-                    'obat' => $obatList,
-                    'biaya_periksa' => $periksa ? "Rp" . number_format($periksa->biaya_periksa ?? 0, 0, ',', '.') : 'Rp0',
-                ];
+                // Pastikan $periksa dan relasinya ada sebelum diakses
+                if ($periksa && $periksa->daftarPoli && $periksa->daftarPoli->jadwalPeriksa && $periksa->daftarPoli->jadwalPeriksa->dokter) {
+                    $obatList = $periksa->detailPeriksas->map(function ($detail) {
+                        return $detail->obat ? "{$detail->obat->nama_obat} {$detail->obat->kemasan} ({$detail->obat->harga})" : 'N/A';
+                    })->implode('<br>');
+
+                    $riwayat[] = [
+                        'no' => $index + 1,
+                        'tanggal_periksa' => \Carbon\Carbon::parse($periksa->tgl_periksa)->format('Y-m-d H:i:s'),
+                        'nama_pasien' => $daftarPoliAwal->pasien->nama ?? 'N/A', // Menggunakan nama pasien dari $daftarPoliAwal untuk konsistensi
+                        'nama_dokter' => $periksa->daftarPoli->jadwalPeriksa->dokter->nama ?? 'N/A',
+                        'keluhan' => $periksa->daftarPoli->keluhan ?? 'N/A',
+                        'catatan' => $periksa->catatan ?? 'Belum ada catatan',
+                        'obat' => $obatList,
+                        'biaya_periksa' => "Rp" . number_format($periksa->biaya_periksa ?? 0, 0, ',', '.'),
+                    ];
+                }
             }
 
             return response()->json($riwayat);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('ModelNotFoundException in showPasienDetail: ' . $e->getMessage());
+            return response()->json(['error' => 'Data pendaftaran atau pasien tidak ditemukan.'], 404);
         } catch (\Exception $e) {
-            Log::error('Error in showPasienDetail: ' . $e->getMessage());
+            Log::error('General Exception in showPasienDetail: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat memuat detail pasien.'], 500);
         }
     }
 }
-
-
-
-
